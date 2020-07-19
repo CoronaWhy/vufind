@@ -1,0 +1,36 @@
+version: "3.3"
+services:
+  solr7:
+    tty: true
+    image: solr:7.3.1
+    working_dir: /usr/local/vufind
+    user: 1000:1000
+    volumes:
+      - "./data/vufind:/usr/local/vufind"
+    environment:
+      - VUFIND_LOCAL_DIR=/usr/local/vufind
+      - VUFIND_LOCAL_DIR=/usr/local/vufind/local
+      - SOLR_ADDITIONAL_START_OPTIONS=-f
+      - SOLR_HOME=/opt/solr/bin
+    ports:
+      - "8080:8983"
+    command: "./solr.sh -force start "
+  vu_web:
+    image: chialab/php:7.2-apache
+    #user: 1000:1000
+    user: root
+    ports:
+        - "80:80"
+    volumes:
+      - "./data/vufind:/usr/local/vufind"
+      - "./scripts:/usr/local/scripts"
+    command: "/usr/local/scripts/runwebserver.sh"  
+  postgres:
+    image: postgres:12
+    user: 1000:1000
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+    ports:
+      - "54323:5432"
+    environment:
+      POSTGRES_PASSWORD: vufind
